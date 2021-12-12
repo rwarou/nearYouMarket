@@ -180,20 +180,16 @@ class Contents extends LocalStorage {
 
   addMyFavoriteContent(Map<String, String> content) async {
     String jsonString = await this.getStoredValue(MY_FAVORITE_STORE_KEY);
-    print("add jsonString $jsonString");
-    List<dynamic> favoriteContents =
-        jsonString == null ? [] : jsonDecode(jsonString);
-    print("add favoritecontents $favoriteContents");
-    print("add content $content");
+    List<dynamic> favoriteContents = jsonString == null || jsonString == "null"
+        ? []
+        : jsonDecode(jsonString);
     favoriteContents.add(content);
-    print("add favoritecontents $favoriteContents");
     this.setStoredValue(MY_FAVORITE_STORE_KEY, jsonEncode(favoriteContents));
   }
 
   isMyFavoriteContents(String cid) async {
     String jsonString = await this.getStoredValue(MY_FAVORITE_STORE_KEY);
     bool isMyFavoriteContent = false;
-    print("$jsonString !@#!@#!@#!@#");
     if (jsonString != null) {
       List<dynamic> json = jsonDecode(jsonString);
       if (json == null || !(json is List)) {
