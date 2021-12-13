@@ -6,7 +6,6 @@ class LocalStorage {
   Future<String> getStoredValue(String key) async {
     try {
       String data = await storage.read(key: key);
-      print("getvalue $data / key $key");
       return await storage.read(key: key);
     } catch (error) {
       return null;
