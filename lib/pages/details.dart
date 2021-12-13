@@ -115,8 +115,12 @@ class _DetailsState extends State<Details> with SingleTickerProviderStateMixin {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () {
-              contents.addMyFavoriteContent(widget.data);
+            onTap: () async {
+              if (isMyFavoriteContent) {
+                await contents.deleteMyFavoriteContent(widget.data["cid"]);
+              } else {
+                await contents.addMyFavoriteContent(widget.data);
+              }
               setState(() {
                 isMyFavoriteContent = !isMyFavoriteContent;
               });

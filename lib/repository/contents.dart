@@ -178,37 +178,52 @@ class Contents extends LocalStorage {
     return data[location];
   }
 
-  addMyFavoriteContent(Map<String, String> content) async {
+  Future<List> loadFavoriteContents() async {
     String jsonString = await this.getStoredValue(MY_FAVORITE_STORE_KEY);
-    print("add jsonString $jsonString");
-    List<dynamic> favoriteContents =
-        jsonString == null ? [] : jsonDecode(jsonString);
-    print("add favoritecontents $favoriteContents");
-    print("add content $content");
-    favoriteContents.add(content);
-    print("add favoritecontents $favoriteContents");
-    this.setStoredValue(MY_FAVORITE_STORE_KEY, jsonEncode(favoriteContents));
+    List<dynamic> json = jsonString == null || jsonString == "null"
+        ? []
+        : jsonDecode(jsonString);
+
+    return json;
+  }
+
+  void updateFavoriteContents(List favoriteContents) async {
+    await this
+        .setStoredValue(MY_FAVORITE_STORE_KEY, jsonEncode(favoriteContents));
+  }
+
+  addMyFavoriteContent(Map<String, String> content) async {
+    List<dynamic> favoriteContents = await loadFavoriteContents();
+    if (favoriteContents.length == 0 || !(favoriteContents is List)) {
+      favoriteContents = [content];
+    } else {
+      favoriteContents.add(content);
+    }
+    updateFavoriteContents(favoriteContents);
+  }
+
+  deleteMyFavoriteContent(String cid) async {
+    List<dynamic> favoriteContents = await loadFavoriteContents();
+    if (favoriteContents.length != 0 || favoriteContents is List) {
+      favoriteContents.removeWhere((element) => element["cid"] == cid);
+    }
+
+    updateFavoriteContents(favoriteContents);
   }
 
   isMyFavoriteContents(String cid) async {
-    String jsonString = await this.getStoredValue(MY_FAVORITE_STORE_KEY);
     bool isMyFavoriteContent = false;
-    print("$jsonString !@#!@#!@#!@#");
-    if (jsonString != null) {
-      List<dynamic> json = jsonDecode(jsonString);
-      if (json == null || !(json is List)) {
-        return false;
-      } else {
-        for (dynamic data in json) {
-          if (data["cid"] == cid) {
-            isMyFavoriteContent = true;
-            break;
-          }
+    List json = await loadFavoriteContents();
+    if (json.length == 0 || !(json is List)) {
+      return false;
+    } else {
+      for (dynamic data in json) {
+        if (data["cid"] == cid) {
+          isMyFavoriteContent = true;
+          break;
         }
       }
-      return isMyFavoriteContent;
-    } else {
-      return null;
     }
+    return isMyFavoriteContent;
   }
 }
